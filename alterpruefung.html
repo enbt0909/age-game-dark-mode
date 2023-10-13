@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <title>Party Altersüberprüfung</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 62.5%;
+            text-align: center;
+            background-color: #dedcde;
+            margin: 0;
+            height: 100lvh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #ageForm {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 2.5em;
+            height: 100vh;
+        }
+
+        #birthdate {
+            padding: .5em;
+        }
+
+        input[type="date"] {
+            height: 2.5em;
+            width: 35%;
+            text-align: center;
+        }
+
+        .btn {
+            --c: #fff;
+            background: linear-gradient(90deg, #0000 33%, #fff5, #0000 67%) var(--_p, 100%)/300% no-repeat,
+                #004dff;
+            color: #0000;
+            border: none;
+            border-radius: .25em;
+            transform: perspective(500px) rotateY(calc(20deg*var(--_i, -1)));
+            text-shadow: calc(var(--_i, -1)* 0.08em) -.01em 0 var(--c),
+                calc(var(--_i, -1)*-0.08em) .01em 2px #0004;
+            outline-offset: .1em;
+            transition: 0.3s;
+        }
+
+        .btn:hover,
+        .btn:focus-visible {
+            --_p: 0%;
+            --_i: 1;
+        }
+
+        .btn:active {
+            text-shadow: none;
+            color: var(--c);
+            box-shadow: inset 0 0 9e9q #0005;
+            transition: 0s;
+        }
+
+/* Dark Mode-Button-Styling */
+#toggleDarkMode {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 0.5em 1em;
+    cursor: pointer;
+}
+
+#toggleDarkMode:hover {
+    background-color: #555;
+}
+
+        .btn {
+            font-weight: bold;
+            font-size: 2rem;
+            margin: 0;
+            cursor: pointer;
+            padding: .1em .3em;
+        }
+
+        .footer-copy {
+            position: absolute;
+            bottom: 2.5em;
+            right: 5em;
+        }
+        .dark-mode {
+            background-color: #444654;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fixed-header">
+        <h1>Spiel: Keine Party oder doch eine? </h1>
+        <p>Bitte gebe dein Geburtsdatum ein, um herauszufinden:</p>
+    </div>
+    <form id="ageForm">
+        <p id="result"></p>
+        <input type="date" id="birthdate">
+        <button class="btn" role="button">Überprüfen</button>
+    </form>
+    <button id="toggleDarkMode">Dark Mode ein/aus</button>
+    <p class="footer-copy">&copy; enbt0909</p>
+
+    <script>
+        const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+        const body = document.body;
+
+        toggleDarkModeButton.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            
+            // Speichere den aktuellen Dark Mode-Status im Local Storage
+            const darkModeEnabled = body.classList.contains('dark-mode');
+            localStorage.setItem('darkModeEnabled', darkModeEnabled);
+        });
+
+        // Überprüfe den Dark Mode-Status im Local Storage beim Laden der Seite
+        const darkModeEnabled = localStorage.getItem('darkModeEnabled');
+        if (darkModeEnabled === 'true') {
+            body.classList.add('dark-mode');
+        }
+
+        document.getElementById('ageForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            let birthdateValue = document.getElementById('birthdate').value;
+
+            if (!birthdateValue) {
+                document.getElementById('result').textContent = 'Bitte gebe dein Geburtsdatum ein.';
+                return;
+            }
+
+            let birthdate = new Date(birthdateValue);
+            if (isNaN(birthdate)) {
+                document.getElementById('result').textContent = '😡 Bitte gebe ein gültiges Geburtsdatum ein.';
+                return;
+            }
+
+            let currentDate = new Date();
+
+            if (birthdate > currentDate) {
+                let timeDifference = birthdate.getFullYear() - currentDate.getFullYear();
+                document.getElementById('result').innerHTML = `Du bist noch nicht geboren!<br>Ansonsten,<br>wenn du deinen Plan machst,<br>deine Eltern zu treffen,<br>wirst du erst in ${timeDifference} Jahren hier auftauchen. 🤪`;
+                return;
+            }
+
+            if (birthdateValue === "0001-01-01") {
+                const germanDate = new Date().toLocaleDateString('de-DE');
+                const age = new Date().getFullYear() - new Date("0001-01-01").getFullYear();
+                document.getElementById('result').innerHTML = `🧐 Ist es dein Ernst, dass du seit ${age} Jahren da bist?<br>Wenn ja, dann hast du schon Jesus damals persönlich kennengelernt.<br>Du weißt, wir haben heute<br>${germanDate}`;
+                return;
+            }
+
+            let age = currentDate.getFullYear() - birthdate.getFullYear();
+
+            if (age >= 18) {
+                document.getElementById('result').innerHTML = `😀 Du bist ${age} Jahre alt.<br>Willkommen auf der Party!`;
+            } else {
+                document.getElementById('result').textContent = `Entschuldigung, du bist erst ${age} und damit unter 18. Party ist nichts für dich. 🥹`;
+            }
+        });
+    </script>
+
+</body>
+
+</html>
